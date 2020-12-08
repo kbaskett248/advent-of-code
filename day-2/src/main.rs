@@ -1,3 +1,4 @@
+use std::fmt;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -8,19 +9,29 @@ struct Password {
 }
 
 impl Password {
-    fn new(line: &str) -> Password {
-        let password = Password {
-            text: "text".to_string(),
-            rule: "rule".to_string(),
-        };
-        password
+    fn new(line: &str) -> Option<Password> {
+        let mut i = line.split(':');
+        let rule = i.next()?.trim();
+        let text = i.next()?.trim();
+        Some(Password {
+            text: (*text).to_string(),
+            rule: (*rule).to_string(),
+        })
+    }
+}
+
+impl fmt::Display for Password {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.text, self.rule)
     }
 }
 
 fn main() {
     if let Some(lines) = read_lines("input.txt") {
         for line in lines {
-            let password = Password::new(&line);
+            if let Some(password) = Password::new(&line) {
+                println!("{}", password)
+            }
         }
     }
 }
