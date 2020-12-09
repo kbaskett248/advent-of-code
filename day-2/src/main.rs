@@ -24,9 +24,9 @@ impl Password {
         let max: i8 = k.next()?.parse::<i8>().ok()?;
         Some(Password {
             text: (*text).to_string(),
-            letter: letter,
-            min: min,
-            max: max,
+            letter,
+            min,
+            max,
         })
     }
 
@@ -34,6 +34,16 @@ impl Password {
         let char_list: Vec<char> = self.text.chars().filter(|x| *x == self.letter).collect();
         let length: i8 = char_list.len().try_into().unwrap();
         length >= self.min && length <= self.max
+    }
+
+    fn valid_part_2(&self) -> bool {
+        let char_list: Vec<char> = self.text.chars().collect();
+        let chars: Vec<&char> = [self.min - 1, self.max - 1]
+            .iter()
+            .map(|x| char_list.get(*x as usize).unwrap_or(&' '))
+            .filter(|x| **x == self.letter)
+            .collect();
+        chars.len() == 1
     }
 }
 
@@ -54,7 +64,16 @@ fn main() {
             .filter_map(|line| Password::new(&line))
             .filter(|pw| pw.valid_part_1())
             .collect();
-        println!("There are {} valid passwords", valid_pws.len());
+        println!("There are {} valid passwords for part 1", valid_pws.len());
+        let valid_pws_pt2: Vec<Password> = lines
+            .iter()
+            .filter_map(|line| Password::new(&line))
+            .filter(|pw| pw.valid_part_2())
+            .collect();
+        println!(
+            "There are {} valid passwords for part 2",
+            valid_pws_pt2.len()
+        );
     }
 }
 
