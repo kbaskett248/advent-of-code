@@ -30,11 +30,7 @@ impl Map {
     fn from_lines(lines: impl Iterator<Item = String>) -> Map {
         let mut map: Vec<Vec<Square>> = vec![];
         for line in lines {
-            for (j, c) in line
-                .chars()
-                .filter_map(Square::from_char)
-                .enumerate()
-            {
+            for (j, c) in line.chars().filter_map(Square::from_char).enumerate() {
                 match map.get_mut(j) {
                     None => map.push(vec![c]),
                     Some(column) => column.push(c),
@@ -70,7 +66,16 @@ fn main() {
         println!(
             "PART 1\n{} trees were hit.\nYou went {} squares down the hill.",
             trees, down
-        )
+        );
+        let slopes = vec![(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)];
+        let prod: usize = slopes
+            .iter()
+            .map(|slope| {
+                let (trees, _) = map.navigate(*slope);
+                trees
+            })
+            .product();
+        println!("PART 2\nThe product is {}", prod);
     }
 }
 
