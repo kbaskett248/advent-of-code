@@ -14,7 +14,7 @@ impl Square {
         match c {
             '#' => Some(Square::Tree),
             '.' => Some(Square::Open),
-            _ => None
+            _ => None,
         }
     }
 
@@ -23,27 +23,49 @@ impl Square {
     }
 }
 
+struct Map {
+    map: Vec<Vec<Square>>,
+}
+
+impl Map {
+    fn from_lines(lines: impl Iterator<Item = String>) -> Map {
+        let mut map: Vec<Vec<Square>> = vec![];
+        for line in lines {
+            for (j, c) in line
+                .chars()
+                .filter_map(|x| Square::from_char(x))
+                .enumerate()
+            {
+                match map.get_mut(j) {
+                    None => map.push(vec![c]),
+                    Some(column) => column.push(c),
+                };
+            }
+        }
+        Map { map }
+    }
+
+    fn iter(&self) -> impl Iterator<Item = &Vec<Square>> {
+        self.map.iter().cycle()
+    }
+
+    fn navigate(&self, slope: (i8, i8)) -> (i16, i16, i16) {
+        (0, 0, 0)
+    }
+}
+
 fn main() {
     if let Ok(lines) = read_lines("input.txt") {
-        file_to_map(lines)
+        let map = Map::from_lines(lines);
+        let (trees, down, right) = map.navigate((1, 3));
+        println!("PART 1\n{} trees were hit.\nYou went {} squares down the hill.\nYou went {} squares right.", trees, down, right)
     }
 }
 
 fn read_lines<P>(filename: P) -> io::Result<impl Iterator<Item = String>>
-where P: AsRef<Path>, {
+where
+    P: AsRef<Path>,
+{
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines().filter_map(|x| x.ok()))
-}
-
-fn file_to_map(lines: impl Iterator<Item = String>) -> Vec<Vec<char>> {
-    let mut map: Vec<Vec<char>> = vec![];
-    for (i, line) in lines.enumerate() {
-        for (j, c) in line.chars().enumerate() {
-            match map.get_mut(j) {
-                None => map.push(vec![c]),
-                Some(column) => column.push(c),
-            };
-        }
-    }
-    map
 }
