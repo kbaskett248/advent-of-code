@@ -7,20 +7,20 @@ use regex::Regex;
 
 fn main() {
     if let Ok(lines) = read_lines("input.txt") {
-        let passports: Vec<HashMap<String, String>> = chunk_lines(lines)
-            .map(parse_passport)
-            .collect();
+        let passports: Vec<HashMap<String, String>> =
+            chunk_lines(lines).map(parse_passport).collect();
 
-        let num_valid_passports = passports.iter()
-            .filter(|x| passport_is_valid(x))
-            .count();
+        let num_valid_passports = passports.iter().filter(|x| passport_is_valid(x)).count();
         println!("PART 1: There are {} valid passports.", num_valid_passports);
 
-        let num_valid_passports_pt_2 = passports.iter()
+        let num_valid_passports_pt_2 = passports
+            .iter()
             .filter(|x| passport_is_valid_pt_2(x))
-            .inspect(|x| println!("{:?}", x))
             .count();
-        println!("PART 2: There are {} valid passports.", num_valid_passports_pt_2);
+        println!(
+            "PART 2: There are {} valid passports.",
+            num_valid_passports_pt_2
+        );
     }
 }
 
@@ -66,70 +66,65 @@ fn passport_is_valid(passport: &HashMap<String, String>) -> bool {
 
 fn passport_is_valid_pt_2(passport: &HashMap<String, String>) -> bool {
     if passport_is_valid(passport) {
-        passport.iter()
-            .all(|(key, val)| {
-                match key.as_str() {
-                    "byr" => {
-                        if let Ok(year) = val.parse::<i16>() {
-                            year >= 1920 && year <= 2002
-                        } else {
-                            false
-                        }
-                    },
-                    "iyr" => {
-                        if let Ok(year) = val.parse::<i16>() {
-                            year >= 2010 && year <= 2020
-                        } else {
-                            false
-                        }
-                    },
-                    "eyr" => {
-                        if let Ok(year) = val.parse::<i16>() {
-                            year >= 2020 && year <= 2030
-                        } else {
-                            false
-                        }
-                    },
-                    "hgt" => {
-                        if let Some((height, units)) = parse_height(val) {
-                            match units {
-                                "in" => height >= 59 && 76 >= height,
-                                "cm" => height >= 150 && 193 >= height,
-                                _ => false
-                            }
-                        } else {
-                            false
-                        }
-                    },
-                    "hcl" => {
-                        if let Ok(re) = Regex::new(r"#[0-9a-f]{6}") {
-                            re.is_match(val)
-                        } else {
-                            false
-                        }
-                    },
-                    "ecl" => {
-                        ["amb", "blu", "brn", "grn", "gry", "hzl", "oth"]
-                            .binary_search(&val.as_str()).is_ok()
-                    },
-                    "pid" => {
-                        if let Ok(re) = Regex::new(r"[0-9]{9}") {
-                            re.is_match(val)
-                        } else {
-                            false
-                        }
-                    }
-                    _ => true,
-                    
+        passport.iter().all(|(key, val)| match key.as_str() {
+            "byr" => {
+                if let Ok(year) = val.parse::<i16>() {
+                    year >= 1920 && year <= 2002
+                } else {
+                    false
                 }
-            })
+            }
+            "iyr" => {
+                if let Ok(year) = val.parse::<i16>() {
+                    year >= 2010 && year <= 2020
+                } else {
+                    false
+                }
+            }
+            "eyr" => {
+                if let Ok(year) = val.parse::<i16>() {
+                    year >= 2020 && year <= 2030
+                } else {
+                    false
+                }
+            }
+            "hgt" => {
+                if let Some((height, units)) = parse_height(val) {
+                    match units {
+                        "in" => height >= 59 && 76 >= height,
+                        "cm" => height >= 150 && 193 >= height,
+                        _ => false,
+                    }
+                } else {
+                    false
+                }
+            }
+            "hcl" => {
+                if let Ok(re) = Regex::new(r"^#[0-9a-f]{6}$") {
+                    re.is_match(val)
+                } else {
+                    false
+                }
+            }
+            "ecl" => ["amb", "blu", "brn", "grn", "gry", "hzl", "oth"]
+                .binary_search(&val.as_str())
+                .is_ok(),
+            "pid" => {
+                if let Ok(re) = Regex::new(r"^[0-9]{9}$") {
+                    re.is_match(val)
+                } else {
+                    false
+                }
+            }
+            _ => true,
+        })
     } else {
         false
     }
 }
 
 fn parse_height(value: &str) -> Option<(i16, &str)> {
-    let re = Regex::new(r"(?P<height>\d{2,3})(?P<units>(cm|in))").ok()?;
+    let re = Regex::new(r"^(?P<height>\d{2,3})(?P<units>(cm|in))$").ok()?;
     let caps = re.captures(value)?;
     let height = caps.name("height")?.as_str().parse().ok()?;
     let units = caps.name("units")?.as_str();
