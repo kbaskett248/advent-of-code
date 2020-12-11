@@ -5,6 +5,9 @@ use std::path::Path;
 
 use regex::Regex;
 
+#[macro_use]
+extern crate lazy_static;
+
 fn main() {
     if let Ok(lines) = read_lines("input.txt") {
         let passports: Vec<HashMap<String, String>> =
@@ -100,21 +103,19 @@ fn passport_is_valid_pt_2(passport: &HashMap<String, String>) -> bool {
                 }
             }
             "hcl" => {
-                if let Ok(re) = Regex::new(r"^#[0-9a-f]{6}$") {
-                    re.is_match(val)
-                } else {
-                    false
+                lazy_static! {
+                    static ref RE: Regex = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
                 }
+                RE.is_match(val)
             }
             "ecl" => ["amb", "blu", "brn", "grn", "gry", "hzl", "oth"]
                 .binary_search(&val.as_str())
                 .is_ok(),
             "pid" => {
-                if let Ok(re) = Regex::new(r"^[0-9]{9}$") {
-                    re.is_match(val)
-                } else {
-                    false
+                lazy_static! {
+                    static ref RE: Regex = Regex::new(r"^[0-9]{9}$").unwrap();
                 }
+                RE.is_match(val)
             }
             _ => true,
         })
@@ -124,8 +125,10 @@ fn passport_is_valid_pt_2(passport: &HashMap<String, String>) -> bool {
 }
 
 fn parse_height(value: &str) -> Option<(i16, &str)> {
-    let re = Regex::new(r"^(?P<height>\d{2,3})(?P<units>(cm|in))$").ok()?;
-    let caps = re.captures(value)?;
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"^(?P<height>\d{2,3})(?P<units>(cm|in))$").unwrap();
+    }
+    let caps = RE.captures(value)?;
     let height = caps.name("height")?.as_str().parse().ok()?;
     let units = caps.name("units")?.as_str();
     Some((height, units))
