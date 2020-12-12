@@ -65,7 +65,6 @@ fn part_2(lines: impl Iterator<Item = String>) -> Option<BoardingPass> {
         .iter()
         .cloned()
         .zip(passes.iter().skip(1))
-        .inspect(|a| println!("{:?}", a))
         .skip_while(|(x, y)| y.id() - x.id() != 2)
         .nth(0)
     {
