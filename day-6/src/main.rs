@@ -32,7 +32,10 @@ fn main() {
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
     chunk_lines(lines)
         .map(|forms| {
-            let mut answers: Vec<char> = forms.chars().collect();
+            let mut answers: Vec<char> = forms
+                .iter()
+                .flat_map(|x| x.chars())
+                .collect();
             answers.sort_unstable();
             answers.dedup();
             answers.len()
@@ -52,11 +55,11 @@ where
     Ok(io::BufReader::new(file).lines().filter_map(|x| x.ok()))
 }
 
-fn chunk_lines(lines: impl Iterator<Item = String>) -> impl Iterator<Item = String> {
+fn chunk_lines(lines: impl Iterator<Item = String>) -> impl Iterator<Item = Vec<String>> {
     lines
         .scan(vec![], |container, line| match line.as_str() {
             "" => {
-                let chunk = Some(Some(container.join("")));
+                let chunk = Some(Some(container.clone()));
                 container.clear();
                 chunk
             }
