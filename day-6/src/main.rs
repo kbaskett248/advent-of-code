@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::convert::identity;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -27,6 +28,8 @@ mod tests {
 fn main() {
     let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
     println!("PART 1: {}", p1);
+    let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
+    println!("PART 2: {}", p2);
 }
 
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
@@ -43,8 +46,19 @@ fn part_1(lines: impl Iterator<Item = String>) -> usize {
         .sum()
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {
-    panic!("Implement part 2");
+fn part_2(lines: impl Iterator<Item = String>) -> usize {
+    chunk_lines(lines)
+        .map(|forms| {
+            let mut form: HashSet<char> = forms.pop().unwrap().chars().collect();
+            forms.iter()
+                .fold(form, |cont, f| {
+                    let a: HashSet<char> = f.chars().collect();
+                    let b: HashSet<char> = cont.intersection(&a).cloned().collect();
+                    b
+                });
+            form.len()
+        })
+        .sum()
 }
 
 fn read_lines<P>(filename: P) -> io::Result<impl Iterator<Item = String>>
