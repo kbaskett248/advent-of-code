@@ -1,3 +1,4 @@
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
 use std::str::FromStr;
@@ -14,11 +15,10 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore]
     fn test_part_1() {
         assert_eq!(
             part_1(lib::read_lines("input.txt").expect("read_lines failed")),
-            ()
+            197
         );
     }
 
@@ -69,9 +69,46 @@ fn main() {
     println!("PART 2: {:?}", p2);
 }
 
-fn part_1(lines: impl Iterator<Item = String>) -> () {}
+fn part_1(lines: impl Iterator<Item = String>) -> usize {
+    let mut containers: HashMap<String, HashSet<String>> = HashMap::new();
 
-fn part_2(lines: impl Iterator<Item = String>) -> () {}
+    // Parse the BagSpecs, then convert them to a map keyed by the contained
+    // bag. The value is the set of all bags that can contain that bag.
+    for bagspec in lines.filter_map(|s| s.parse::<BagSpec>().ok()) {
+        for content in bagspec.contents {
+            match containers.get_mut(content.color.as_str()) {
+                Some(set) => {set.insert(bagspec.color.clone());},
+                None => {
+                    let mut set = HashSet::new();
+                    set.insert(bagspec.color.clone());
+                    containers.insert(content.color, set);
+                },
+            };
+        };
+    };
+
+    // Iterate over a worklist of bags, starting with "shiny gold".
+    // For each worklist item, add the bags that can contain that bag,
+    // then remove the item from 
+    let mut offset = 0;
+    let mut bags_with_gold = vec!["shiny gold"];
+    while offset < bags_with_gold.len() {
+        let bag = bags_with_gold[offset];
+        if let Some(bags) = containers.get(bag) {
+            for b in bags {
+                bags_with_gold.push(b)
+            }
+        }
+        offset += 1;
+    }
+    // Remove duplicates
+    bags_with_gold.sort_unstable();
+    bags_with_gold.dedup();
+    // Subtract 1 to remove the shiny gold bag from the list
+    bags_with_gold.len() - 1
+}
+
+fn part_2(lines: impl Iterator<Item = String>) {}
 
 #[derive(Debug, Eq)]
 struct BagSpec {
@@ -106,7 +143,7 @@ impl FromStr for BagSpec {
                 Regex::new(r"^(?P<color>[a-z ]+?) bags contain (?P<contents>[a-z0-9 ,]+).$")
                     .unwrap();
             static ref CONT: Regex =
-                Regex::new(r"^(?P<count>\d+) (?P<color>[a-z ]+?) bags?").unwrap();
+                Regex::new(r"(?P<count>\d+) (?P<color>[a-z ]+?) bags?").unwrap();
         }
         let caps = RE_LINE.captures(s).ok_or(BagSpecParseError)?;
         let color = caps
