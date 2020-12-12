@@ -20,7 +20,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            3050
         );
     }
 }
@@ -35,10 +35,7 @@ fn main() {
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
     chunk_lines(lines)
         .map(|forms| {
-            let mut answers: Vec<char> = forms
-                .iter()
-                .flat_map(|x| x.chars())
-                .collect();
+            let mut answers: Vec<char> = forms.iter().flat_map(|x| x.chars()).collect();
             answers.sort_unstable();
             answers.dedup();
             answers.len()
@@ -49,14 +46,16 @@ fn part_1(lines: impl Iterator<Item = String>) -> usize {
 fn part_2(lines: impl Iterator<Item = String>) -> usize {
     chunk_lines(lines)
         .map(|forms| {
-            let mut form: HashSet<char> = forms.pop().unwrap().chars().collect();
-            forms.iter()
-                .fold(form, |cont, f| {
-                    let a: HashSet<char> = f.chars().collect();
-                    let b: HashSet<char> = cont.intersection(&a).cloned().collect();
-                    b
-                });
-            form.len()
+            let mut iter = forms.iter().map(|x| x.chars().collect::<HashSet<char>>());
+            let intersection = iter.next().map(|set| {
+                iter.fold(set, |set1, set2| {
+                    set1.intersection(&set2).copied().collect()
+                })
+            });
+            match intersection {
+                Some(set) => set.len(),
+                None => 0,
+            }
         })
         .sum()
 }
