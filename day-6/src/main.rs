@@ -1,3 +1,4 @@
+use std::convert::identity;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -10,32 +11,37 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            880
+            6416
         );
     }
 
     #[test]
     fn test_part_2() {
         assert_eq!(
-            part_2(read_lines("input.txt").expect("read_lines failed"))
-                .expect("found no pass")
-                .id()
-                + 1,
-            731
+            part_2(read_lines("input.txt").expect("read_lines failed")),
+            ()
         );
     }
 }
 
 fn main() {
-    println!("Hello, world!");
+    let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
+    println!("PART 1: {}", p1);
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {
-
+fn part_1(lines: impl Iterator<Item = String>) -> usize {
+    chunk_lines(lines)
+        .map(|forms| {
+            let mut answers: Vec<char> = forms.chars().collect();
+            answers.sort_unstable();
+            answers.dedup();
+            answers.len()
+        })
+        .sum()
 }
 
 fn part_2(lines: impl Iterator<Item = String>) {
-
+    panic!("Implement part 2");
 }
 
 fn read_lines<P>(filename: P) -> io::Result<impl Iterator<Item = String>>
@@ -50,14 +56,14 @@ fn chunk_lines(lines: impl Iterator<Item = String>) -> impl Iterator<Item = Stri
     lines
         .scan(vec![], |container, line| match line.as_str() {
             "" => {
-                let chunk = Some(container.join(" "));
+                let chunk = Some(Some(container.join("")));
                 container.clear();
                 chunk
             }
             _ => {
                 container.push(line);
-                Some("".to_string())
+                Some(None)
             }
         })
-        .filter(|x| x != "")
+        .filter_map(identity)
 }
