@@ -1,6 +1,5 @@
 use std::error::Error;
 use std::fmt;
-use std::mem::replace;
 use std::str::FromStr;
 
 use mylib::read_lines;
@@ -13,7 +12,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            1586
         );
     }
 
@@ -27,17 +26,26 @@ mod tests {
 }
 
 fn main() {
-    // let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
-    // println!("PART 1: {:?}", p1);
-    // let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
-    // println!("PART 2: {:?}", p2);
-    let val = "-10".parse::<i8>().unwrap();
-    println!("{}", val)
+    let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
+    println!("PART 1: {:?}", p1);
+    let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
+    println!("PART 2: {:?}", p2);
 }
 
-fn part_1(lines: impl Iterator<Item = String>) -> () {}
+fn part_1(lines: impl Iterator<Item = String>) -> i16 {
+    let instructions: Vec<Instruction> = lines
+        .filter_map(|line| line.parse::<Instruction>().ok())
+        .collect();
+    let program = Program::new(instructions);
+    if let Some((state, _)) = program.take_while(|(_, instruction)| instruction.count() == &0).last() {
+        state.acc
+    } else {
+        0
+    }
 
-fn part_2(lines: impl Iterator<Item = String>) -> () {}
+}
+
+fn part_2(lines: impl Iterator<Item = String>) {}
 
 #[derive(Copy, Clone)]
 enum Instruction {
@@ -68,15 +76,21 @@ impl Instruction {
         match self {
             Instruction::Acc { count, value } => Instruction::Acc {
                 count: count + 1,
-                value: value.clone(),
+                value: *value,
             },
             Instruction::Jmp { count, value } => Instruction::Jmp {
                 count: count + 1,
-                value: value.clone(),
+                value: *value,
             },
-            Instruction::Nop { count } => Instruction::Nop {
-                count: count + 1,
-            }
+            Instruction::Nop { count } => Instruction::Nop { count: count + 1 },
+        }
+    }
+
+    fn count(&self) -> &i8 {
+        match self {
+            Instruction::Acc{count, ..} => count,
+            Instruction::Jmp{count, ..} => count,
+            Instruction::Nop{count, ..} => count,
         }
     }
 }
@@ -140,10 +154,10 @@ impl Program {
 
 impl Iterator for Program {
     type Item = (State, Instruction);
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         let state = self.state;
-        let instruction = self.instructions.get(self.state.inst as usize)?.clone();
+        let instruction = *self.instructions.get(self.state.inst as usize)?;
         let new_state = instruction.execute(&state);
         let new_instruction = instruction.increment_count();
         self.instructions[state.inst as usize] = new_instruction;
