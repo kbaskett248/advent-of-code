@@ -26,7 +26,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(lib::read_lines("input.txt").expect("read_lines failed")),
-            85323
+            85324
         );
     }
 
@@ -122,7 +122,7 @@ fn part_2(lines: impl Iterator<Item = String>) -> usize {
         count
     }
     
-    get_bags_count(&specs, "shiny gold") - 1
+    get_bags_count(&specs, "shiny gold")
 }
 
 #[derive(Debug, Eq)]
