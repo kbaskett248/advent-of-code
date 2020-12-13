@@ -51,6 +51,20 @@ impl Instruction {
             Instruction::Nop { count, .. } => count,
         }
     }
+
+    pub fn flip(&self) -> Option<Instruction> {
+        match self {
+            Instruction::Jmp { count, value } => Some(Instruction::Nop {
+                count: *count,
+                value: *value,
+            }),
+            Instruction::Nop { count, value } => Some(Instruction::Jmp {
+                count: *count,
+                value: *value,
+            }),
+            _ => None,
+        }
+    }
 }
 
 impl FromStr for Instruction {
@@ -111,18 +125,28 @@ impl Program {
 }
 
 impl Iterator for Program {
-    type Item = (State, Instruction);
+    type Item = (State, Option<Instruction>);
 
     fn next(&mut self) -> Option<Self::Item> {
         let state = self.state;
+        // If at the end of the program, return the final state without an instruction.
+        // Increment the instruction counter one more time so we don't hit this again.
+        if state.inst == (self.instructions.len() as i16) {
+            let new_state = State { inst: state.inst + 1, ..state };
+            self.state = new_state;
+            return Some((state, None));
+        }
+
         let instruction = *self.instructions.get(self.state.inst as usize)?;
+        // Assume that if we've executed the same instruction 127 times,
+        // it's infinite looping
         if *instruction.count() == 127 {
-            return None
+            return None;
         }
         let new_state = instruction.execute(&state);
         let new_instruction = instruction.increment_count();
         self.instructions[state.inst as usize] = new_instruction;
         self.state = new_state;
-        Some((state, instruction))
+        Some((state, Some(instruction)))
     }
 }
