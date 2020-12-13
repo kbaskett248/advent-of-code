@@ -97,3 +97,10 @@ impl fmt::Display for InstructionParseError {
     }
 }
 impl Error for InstructionParseError {}
+
+struct Program {
+    instructions: Vec<Instruction>,
+    state: State,
+}
+
+
