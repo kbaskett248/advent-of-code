@@ -13,7 +13,7 @@ impl Instruction {
     fn execute(&self, state: &State) -> State {
         match self {
             Instruction::Acc { value, .. } => State {
-                acc: state.acc + value,
+                acc: state.acc + (*value as i64),
                 inst: state.inst + 1,
             },
             Instruction::Jmp { value, .. } => State {
@@ -76,8 +76,8 @@ impl FromStr for Instruction {
 
 #[derive(Copy, Clone)]
 pub struct State {
-    pub acc: i16,
-    inst: i16,
+    pub acc: i64,
+    pub inst: i16,
 }
 
 impl State {
@@ -116,6 +116,9 @@ impl Iterator for Program {
     fn next(&mut self) -> Option<Self::Item> {
         let state = self.state;
         let instruction = *self.instructions.get(self.state.inst as usize)?;
+        if *instruction.count() == 127 {
+            return None
+        }
         let new_state = instruction.execute(&state);
         let new_instruction = instruction.increment_count();
         self.instructions[state.inst as usize] = new_instruction;
