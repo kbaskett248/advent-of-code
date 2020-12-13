@@ -23,11 +23,10 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part_2() {
         assert_eq!(
             part_2(lib::read_lines("input.txt").expect("read_lines failed")),
-            ()
+            85323
         );
     }
 
@@ -108,7 +107,23 @@ fn part_1(lines: impl Iterator<Item = String>) -> usize {
     bags_with_gold.len() - 1
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(lines: impl Iterator<Item = String>) -> usize {
+    let specs: HashMap<_, _> = lines
+        .filter_map(|line| line.parse::<BagSpec>().ok())
+        .map(|spec| (spec.color.clone(), spec))
+        .collect();
+
+    // return the number of bags contained in the specified bag
+    fn get_bags_count(specs: &HashMap<String, BagSpec>, bag: &str) -> usize {
+        let mut count: usize = 0;
+        for content in &specs[bag].contents {
+            count += (content.count as usize) * (get_bags_count(specs, &content.color) + 1);
+        }
+        count
+    }
+    
+    get_bags_count(&specs, "shiny gold") - 1
+}
 
 #[derive(Debug, Eq)]
 struct BagSpec {
