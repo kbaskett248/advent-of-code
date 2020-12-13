@@ -6,7 +6,7 @@ use std::str::FromStr;
 pub enum Instruction {
     Acc { value: i16, count: i8 },
     Jmp { value: i16, count: i8 },
-    Nop { count: i8 },
+    Nop { value: i16, count: i8 },
 }
 
 impl Instruction {
@@ -37,28 +37,19 @@ impl Instruction {
                 count: count + 1,
                 value: *value,
             },
-            Instruction::Nop { count } => Instruction::Nop { count: count + 1 },
+            Instruction::Nop { value, count } => Instruction::Nop {
+                count: count + 1,
+                value: *value,
+            },
         }
     }
 
     pub fn count(&self) -> &i8 {
         match self {
-            Instruction::Acc{count, ..} => count,
-            Instruction::Jmp{count, ..} => count,
-            Instruction::Nop{count, ..} => count,
+            Instruction::Acc { count, .. } => count,
+            Instruction::Jmp { count, .. } => count,
+            Instruction::Nop { count, .. } => count,
         }
-    }
-}
-
-#[derive(Copy, Clone)]
-pub struct State {
-    pub acc: i16,
-    inst: i16,
-}
-
-impl State {
-    fn new() -> State {
-        State { acc: 0, inst: 0 }
     }
 }
 
@@ -77,9 +68,21 @@ impl FromStr for Instruction {
         match ins {
             "acc" => Ok(Instruction::Acc { value, count: 0 }),
             "jmp" => Ok(Instruction::Jmp { value, count: 0 }),
-            "nop" => Ok(Instruction::Nop { count: 0 }),
+            "nop" => Ok(Instruction::Nop { value, count: 0 }),
             _ => Err(InstructionParseError),
         }
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct State {
+    pub acc: i16,
+    inst: i16,
+}
+
+impl State {
+    fn new() -> State {
+        State { acc: 0, inst: 0 }
     }
 }
 
