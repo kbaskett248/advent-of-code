@@ -53,19 +53,19 @@ fn main() {
 
 fn part_1(lines: impl Iterator<Item = String>) -> u64 {
     let numbers: Vec<u64> = to_numbers(lines).collect();
-    if let Some((_, num)) = repeat(numbers)
+    if let Some((num, _)) = repeat(numbers)
         .enumerate()
         .skip(25)
-        .flat_map(|(index, nums)| {
+        .map(|(index, nums)| {
             let num = nums[index];
-            nums[(index - 26)..(index - 1)].iter().map(move |n| (num, *n))
+            (num, nums[(index - 26)..(index - 1)])
         })
-        .find(|(n, nums)| is_sum(*n, nums)) {
-            num.clone()
-        } else {
-            0
-        }
-    0
+        .find(|(n, nums)| is_sum(*n, nums))
+    {
+        num.clone()
+    } else {
+        0
+    }
 }
 
 fn is_sum(num: u64, preceding: &'static [u64]) -> bool {
