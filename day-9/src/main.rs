@@ -75,14 +75,14 @@ fn is_sum(num: u64, preceding: &'static Vec<u64>) -> bool {
         .is_some()
 }
 
-fn combinations<'a>(numbers: &'a [u64]) -> impl Iterator<Item = (u64, u64)> {
-    repeat(numbers)
+fn combinations(numbers: &[u64]) -> impl Iterator<Item = (u64, u64)> {
+    let nums = numbers.to_vec();
+    let len = nums.len() - 1;
+    repeat(nums)
         .enumerate()
-        .take(numbers.len() - 1)
-        .flat_map(|(index, nums)| {
-            let num = nums[index];
-            nums[(index + 1)..].iter().map(move |n| (num, *n))
-        })
+        .take(len)
+        .map(|(index, ns)| (ns[index], ns[(index + 1)..].to_vec()))
+        .flat_map(|(n, ns)| repeat(n).zip(ns))
 }
 
 fn part_2(lines: impl Iterator<Item = String>) {}
