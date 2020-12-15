@@ -58,9 +58,10 @@ fn part_1(lines: impl Iterator<Item = String>) -> u64 {
         .skip(25)
         .map(|(index, nums)| {
             let num = nums[index];
-            (num, nums[(index - 26)..(index - 1)])
+            let ns = nums[(index - 26)..(index - 1)].to_vec();
+            (num, ns)
         })
-        .find(|(n, nums)| is_sum(*n, nums))
+        .find(|(n, nums)| is_sum(*n, &nums))
     {
         num.clone()
     } else {
@@ -68,13 +69,13 @@ fn part_1(lines: impl Iterator<Item = String>) -> u64 {
     }
 }
 
-fn is_sum(num: u64, preceding: &'static [u64]) -> bool {
-    combinations(preceding)
+fn is_sum(num: u64, preceding: &'static Vec<u64>) -> bool {
+    combinations(&preceding)
         .find(|(a, b)| a + b == num)
         .is_some()
 }
 
-fn combinations(numbers: &'static [u64]) -> impl Iterator<Item = (u64, u64)> {
+fn combinations<'a>(numbers: &'a [u64]) -> impl Iterator<Item = (u64, u64)> {
     repeat(numbers)
         .enumerate()
         .take(numbers.len() - 1)
