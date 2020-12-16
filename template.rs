@@ -1,3 +1,4 @@
+use std::time::Instant;
 use mylib::read_lines;
 
 #[cfg(test)]
@@ -22,10 +23,13 @@ mod tests {
 }
 
 fn main() {
+    let mut start = Instant::now();
     let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
-    println!("PART 1: {:?}", p1);
+    println!("PART 1: {:?} ({:?})", p1, start.elapsed());
+
+    start = Instant::now();
     let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
-    println!("PART 2: {:?}", p2);
+    println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
 fn part_1(lines: impl Iterator<Item = String>) {}
