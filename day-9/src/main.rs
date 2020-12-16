@@ -1,4 +1,4 @@
-use std::iter::{repeat, repeat_with};
+use std::iter::repeat;
 
 use mylib::read_lines;
 
@@ -10,7 +10,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            0
+            14360655
         );
     }
 
@@ -51,6 +51,10 @@ fn main() {
     println!("PART 2: {:?}", p2);
 }
 
+// The first step of attacking the weakness in the XMAS data is to find the 
+// first number in the list (after the preamble) which is not the sum of two 
+// of the 25 numbers before it. What is the first number that does not have 
+// this property?
 fn part_1(lines: impl Iterator<Item = String>) -> u64 {
     let numbers: Vec<u64> = to_numbers(lines).collect();
     if let Some((num, _)) = repeat(numbers)
@@ -58,10 +62,10 @@ fn part_1(lines: impl Iterator<Item = String>) -> u64 {
         .skip(25)
         .map(|(index, nums)| {
             let num = nums[index];
-            let ns = nums[(index - 26)..(index - 1)].to_vec();
+            let ns = nums[(index - 25)..index].to_vec();
             (num, ns)
         })
-        .find(|(n, nums)| is_sum(*n, &nums))
+        .find(|(n, nums)| !is_sum(*n, &nums))
     {
         num.clone()
     } else {
@@ -69,7 +73,7 @@ fn part_1(lines: impl Iterator<Item = String>) -> u64 {
     }
 }
 
-fn is_sum(num: u64, preceding: &'static Vec<u64>) -> bool {
+fn is_sum(num: u64, preceding: &Vec<u64>) -> bool {
     combinations(&preceding)
         .find(|(a, b)| a + b == num)
         .is_some()
