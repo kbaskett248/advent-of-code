@@ -111,11 +111,9 @@ fn part_2(lines: impl Iterator<Item = String>, num: u64) -> u64 {
                 (Some(x), _) => *x,
                 _ => 0,
             };
-            Some((ns.iter().sum::<u64>(), sum))
+            Some(sum)
         })
-        .inspect(|x| println!("{:?}", x))
-        .find(|(total, _)| *total == num)
-        .map(|(_, sum)| sum)
+        .last()
         .expect("No result found")
 }
 
