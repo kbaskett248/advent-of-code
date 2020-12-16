@@ -16,9 +16,10 @@ mod tests {
 
     #[test]
     fn test_part_2() {
+        let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
         assert_eq!(
-            part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            part_2(read_lines("input.txt").expect("read_lines failed"), p1),
+            0
         );
     }
 
@@ -47,7 +48,7 @@ mod tests {
 fn main() {
     let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
     println!("PART 1: {:?}", p1);
-    let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
+    let p2 = part_2(read_lines("input.txt").expect("read_lines failed"), p1);
     println!("PART 2: {:?}", p2);
 }
 
@@ -85,7 +86,26 @@ fn combinations(numbers: &[u64]) -> impl Iterator<Item = (u64, u64)> {
         .flat_map(|(n, ns)| repeat(n).zip(ns))
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+// In this list, adding up all of the numbers from 15 through 40 produces the 
+// invalid number from step 1, 127. (Of course, the contiguous set of numbers 
+// in your actual list might be much longer.)
+// To find the encryption weakness, add together the smallest and largest number 
+// in this contiguous range; in this example, these are 15 and 47, producing 62.
+// What is the encryption weakness in your XMAS-encrypted list of numbers?
+fn part_2(lines: impl Iterator<Item = String>, num: u64) -> u64 {
+    let numbers: Vec<u64> = to_numbers(lines).collect();
+    let cont = numbers.iter().fold(vec![], |ns: Vec<u64>, n: &u64| {
+        match ns.iter().sum() {
+            num => (),
+            n if n < num => ns.push(*n), 
+            n if n > num => {
+                ns.push(*n);
+                ns.pop();
+            }
+        };
+        ns
+    });
+}
 
 fn to_numbers(lines: impl Iterator<Item = String>) -> impl Iterator<Item = u64> {
     lines.filter_map(|line| line.parse::<u64>().ok())
