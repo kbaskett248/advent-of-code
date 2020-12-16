@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::iter::repeat;
 
 use mylib::read_lines;
@@ -19,7 +20,7 @@ mod tests {
         let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed"), p1),
-            0
+            1962331
         );
     }
 
@@ -86,25 +87,36 @@ fn combinations(numbers: &[u64]) -> impl Iterator<Item = (u64, u64)> {
         .flat_map(|(n, ns)| repeat(n).zip(ns))
 }
 
-// In this list, adding up all of the numbers from 15 through 40 produces the 
-// invalid number from step 1, 127. (Of course, the contiguous set of numbers 
+// In this list, adding up all of the numbers from 15 through 40 produces the
+// invalid number from step 1, 127. (Of course, the contiguous set of numbers
 // in your actual list might be much longer.)
-// To find the encryption weakness, add together the smallest and largest number 
+// To find the encryption weakness, add together the smallest and largest number
 // in this contiguous range; in this example, these are 15 and 47, producing 62.
 // What is the encryption weakness in your XMAS-encrypted list of numbers?
 fn part_2(lines: impl Iterator<Item = String>, num: u64) -> u64 {
     let numbers: Vec<u64> = to_numbers(lines).collect();
-    let cont = numbers.iter().fold(vec![], |ns: Vec<u64>, n: &u64| {
-        match ns.iter().sum() {
-            num => (),
-            n if n < num => ns.push(*n), 
-            n if n > num => {
-                ns.push(*n);
-                ns.pop();
+    numbers
+        .iter()
+        .scan(VecDeque::with_capacity(100), |ns, n| {
+            if ns.iter().sum::<u64>() == num {
+                return None;
+            } else {
+                ns.push_back(*n);
             }
-        };
-        ns
-    });
+            while ns.iter().sum::<u64>() > num {
+                ns.pop_front();
+            }
+            let sum = match (ns.iter().min(), ns.iter().max()) {
+                (Some(x), Some(y)) => x + y,
+                (Some(x), _) => *x,
+                _ => 0,
+            };
+            Some((ns.iter().sum::<u64>(), sum))
+        })
+        .inspect(|x| println!("{:?}", x))
+        .find(|(total, _)| *total == num)
+        .map(|(_, sum)| sum)
+        .expect("No result found")
 }
 
 fn to_numbers(lines: impl Iterator<Item = String>) -> impl Iterator<Item = u64> {
