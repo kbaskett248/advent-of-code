@@ -2,6 +2,7 @@ use std::convert::identity;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::str::FromStr;
 
 #[cfg(test)]
 mod tests {
@@ -33,4 +34,9 @@ pub fn chunk_lines(lines: impl Iterator<Item = String>) -> impl Iterator<Item = 
             }
         })
         .filter_map(identity)
+}
+
+pub fn parse_lines<T>(lines: impl Iterator<Item = String>) -> impl Iterator<Item = T> 
+where T: FromStr {
+    lines.filter_map(|line| line.parse::<T>().ok())
 }
