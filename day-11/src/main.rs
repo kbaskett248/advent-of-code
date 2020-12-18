@@ -9,7 +9,15 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            37
+        );
+    }
+
+    #[test]
+    fn test_part_1_example() {
+        assert_eq!(
+            part_1(read_lines("p1.example.txt").expect("read_lines failed")),
+            37
         );
     }
 
@@ -34,6 +42,8 @@ fn main() {
 
 // Simulate your seating area by applying the seating rules repeatedly 
 // until no seats change state. How many seats end up occupied?
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(lines: impl Iterator<Item = String>) -> u32 {
+    0
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}
