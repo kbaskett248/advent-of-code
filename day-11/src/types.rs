@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq)]
 pub enum Tile {
     Seat { occupied: bool },
     Floor,
@@ -69,6 +69,23 @@ impl FromStr for Tile {
     }
 }
 
+impl PartialEq for Tile {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            Tile::Seat { occupied } => match other {
+                Tile::Seat {
+                    occupied: o_occupied,
+                } => occupied == o_occupied,
+                Tile::Floor => false,
+            },
+            Tile::Floor => match other {
+                Tile::Floor => true,
+                _ => false,
+            },
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct TileParseError {
     string: String,
@@ -89,7 +106,7 @@ impl fmt::Display for OnlyImplementedForSeatError {
 }
 impl Error for OnlyImplementedForSeatError {}
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq)]
 pub struct SeatingChart {
     seats: Vec<Vec<Tile>>,
 }
@@ -137,6 +154,13 @@ impl SeatingChart {
                 .collect(),
         }
     }
+
+    pub fn count_occupied(&self) -> usize {
+        self.seats.iter()
+            .flat_map(|row| row.iter())
+            .filter(|tile| tile.is_occupied())
+            .count()
+    }
 }
 
 impl Iterator for SeatingChart {
@@ -147,6 +171,12 @@ impl Iterator for SeatingChart {
         let next = self.next_frame();
         self.seats = next.seats;
 
-        Some(SeatingChart{ seats: current })
+        Some(SeatingChart { seats: current })
+    }
+}
+
+impl PartialEq for SeatingChart {
+    fn eq(&self, other: &Self) -> bool {
+        self.seats == other.seats
     }
 }

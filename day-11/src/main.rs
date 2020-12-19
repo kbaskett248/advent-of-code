@@ -44,8 +44,21 @@ fn main() {
 
 // Simulate your seating area by applying the seating rules repeatedly 
 // until no seats change state. How many seats end up occupied?
-fn part_1(lines: impl Iterator<Item = String>) -> u32 {
-    0
+fn part_1(lines: impl Iterator<Item = String>) -> usize {
+    let mut chart = types::SeatingChart::from_lines(lines);
+    let first = chart.next().expect("No seating chart");
+    if let Some(final_chart) = chart.scan(first, |prev, next| {
+        if next == *prev {
+            None
+        } else {
+            Some(next)
+        }
+    })
+    .last() {
+        final_chart.count_occupied()
+    } else {
+        0
+    }
 }
 
 fn part_2(lines: impl Iterator<Item = String>) {}
