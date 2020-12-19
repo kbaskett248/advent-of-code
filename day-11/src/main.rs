@@ -45,7 +45,7 @@ fn main() {
 // Simulate your seating area by applying the seating rules repeatedly
 // until no seats change state. How many seats end up occupied?
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
-    let mut chart = types::SeatingChart::from_lines(lines).peekable();
+    let mut chart = types::SeatingChart::from_lines(lines, 4).peekable();
     let mut current = chart.next().expect("No seating chart");
     while current != *chart.peek().expect("Failed to return item") {
         current = chart.next().expect("Failed to return item");

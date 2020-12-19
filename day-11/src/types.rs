@@ -32,13 +32,13 @@ impl Tile {
         }
     }
 
-    pub fn next_frame(&self, mut neighbors: impl Iterator<Item = Tile>) -> Tile {
+    pub fn next_frame(&self, mut neighbors: impl Iterator<Item = Tile>, max_occupied: usize) -> Tile {
         match *self {
             a @ Tile::Floor => a,
             Tile::Seat { occupied } => match occupied {
                 true => {
                     let num_occupied = neighbors.filter(|t| t.is_occupied()).count();
-                    if num_occupied >= 4 {
+                    if num_occupied >= max_occupied {
                         self.vacate().expect("Was not seat")
                     } else {
                         *self
@@ -125,10 +125,11 @@ impl Error for OnlyImplementedForSeatError {}
 #[derive(Clone, Debug, Eq)]
 pub struct SeatingChart {
     seats: Vec<Vec<Tile>>,
+    max_occupied: usize,
 }
 
 impl SeatingChart {
-    pub fn from_lines(lines: impl Iterator<Item = String>) -> SeatingChart {
+    pub fn from_lines(lines: impl Iterator<Item = String>, max_occupied: usize) -> SeatingChart {
         let seats = lines
             .map(|line| {
                 line.chars()
@@ -136,7 +137,7 @@ impl SeatingChart {
                     .collect()
             })
             .collect();
-        SeatingChart { seats }
+        SeatingChart { seats, max_occupied }
     }
 
     fn neighbors(&self, row: usize, col: usize) -> impl Iterator<Item = Tile> + '_ {
@@ -164,10 +165,11 @@ impl SeatingChart {
                 .map(|(r, row)| {
                     row.iter()
                         .enumerate()
-                        .map(|(c, tile)| tile.next_frame(self.neighbors(r, c)))
+                        .map(|(c, tile)| tile.next_frame(self.neighbors(r, c), self.max_occupied))
                         .collect()
                 })
                 .collect(),
+            max_occupied: self.max_occupied,
         }
     }
 
@@ -187,7 +189,7 @@ impl Iterator for SeatingChart {
         let next = self.next_frame();
         self.seats = next.seats;
 
-        Some(SeatingChart { seats: current })
+        Some(SeatingChart { seats: current, max_occupied: self.max_occupied })
     }
 }
 
