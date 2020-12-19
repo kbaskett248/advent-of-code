@@ -1,3 +1,4 @@
+use std::cmp::{min, max};
 use mylib::read_lines;
 use std::time::Instant;
 
@@ -45,7 +46,23 @@ fn main() {
 // Simulate your seating area by applying the seating rules repeatedly
 // until no seats change state. How many seats end up occupied?
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
-    let mut chart = types::SeatingChart::from_lines(lines, 4).peekable();
+    fn neighbors(seats: &[&[types::Tile]], row: usize, col: usize) -> impl Iterator<Item = types::Tile> + '_ {
+        let r_min: usize = max(row as i8 - 1, 0) as usize;
+        let r_max: usize = min(row + 1, seats.len() - 1) as usize;
+
+        let c_min: usize = max(col as i8 - 1, 0) as usize;
+        let c_max: usize = min(col + 1, seats[row].len() - 1) as usize;
+
+        (r_min..=r_max)
+            .flat_map(move |r| {
+                (c_min..=c_max)
+                    .filter(move |&c| r != row || c != col)
+                    .map(move |c| (r, c))
+            })
+            .map(move |(r, c)| seats[r][c])
+    }
+    
+    let mut chart = types::SeatingChart::from_lines(lines, 4, neighbors).peekable();
     let mut current = chart.next().expect("No seating chart");
     while current != *chart.peek().expect("Failed to return item") {
         current = chart.next().expect("Failed to return item");

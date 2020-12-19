@@ -126,6 +126,7 @@ impl Error for OnlyImplementedForSeatError {}
 pub struct SeatingChart {
     seats: Vec<Vec<Tile>>,
     max_occupied: usize,
+    neighbors: Fn(Vec<Vec<Tile>>, usize, usize) -> impl Iterator<Item = Tile>
 }
 
 impl SeatingChart {
