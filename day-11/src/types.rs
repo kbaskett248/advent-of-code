@@ -1,6 +1,7 @@
 use std::cmp::{max, min};
 use std::error::Error;
 use std::fmt;
+use std::fmt::Display;
 use std::str::FromStr;
 
 #[derive(Copy, Clone, Debug, Eq)]
@@ -53,6 +54,18 @@ impl Tile {
             },
         }
     }
+
+    fn to_char(&self) -> char {
+        match self {
+            Tile::Floor => '.',
+            Tile::Seat{ occupied } => {
+                match occupied {
+                    true => '#',
+                    false => 'L',
+                }
+            }
+        }
+    }
 }
 
 impl FromStr for Tile {
@@ -83,6 +96,12 @@ impl PartialEq for Tile {
                 _ => false,
             },
         }
+    }
+}
+
+impl Display for Tile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_char())
     }
 }
 
@@ -125,10 +144,10 @@ impl SeatingChart {
 
     fn neighbors(&self, row: usize, col: usize) -> impl Iterator<Item = Tile> + '_ {
         let r_min: usize = max(row as i8 - 1, 0) as usize;
-        let r_max: usize = min(row + 1, self.seats.len()) as usize;
+        let r_max: usize = min(row + 1, self.seats.len() - 1) as usize;
 
         let c_min: usize = max(col as i8 - 1, 0) as usize;
-        let c_max: usize = min(col + 1, self.seats[row].len()) as usize;
+        let c_max: usize = min(col + 1, self.seats[row].len() - 1) as usize;
 
         (r_min..=r_max)
             .flat_map(move |r| {
@@ -178,5 +197,19 @@ impl Iterator for SeatingChart {
 impl PartialEq for SeatingChart {
     fn eq(&self, other: &Self) -> bool {
         self.seats == other.seats
+    }
+}
+
+impl Display for SeatingChart {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp = self.seats.iter()
+            .map(|row| {
+                row.iter()
+                    .map(|tile| tile.to_char())
+                    .collect::<String>()
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+        write!(f, "{}", disp)
     }
 }
