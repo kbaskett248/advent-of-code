@@ -1,6 +1,8 @@
 use std::time::Instant;
 use mylib::read_lines;
 
+mod types;
+
 #[cfg(test)]
 mod tests {
     use super::*;
