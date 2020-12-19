@@ -91,10 +91,7 @@ impl PartialEq for Tile {
                 } => occupied == o_occupied,
                 Tile::Floor => false,
             },
-            Tile::Floor => match other {
-                Tile::Floor => true,
-                _ => false,
-            },
+            Tile::Floor => matches!(other, Tile::Floor),
         }
     }
 }
@@ -196,13 +193,15 @@ impl Iterator for SeatingChart {
 
 impl PartialEq for SeatingChart {
     fn eq(&self, other: &Self) -> bool {
-        self.seats == other.seats
+        let a = &self.seats;
+        let b = &other.seats;
+        *a == *b
     }
 }
 
 impl Display for SeatingChart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let disp = self.seats.iter()
+        let s = self.seats.iter()
             .map(|row| {
                 row.iter()
                     .map(|tile| tile.to_char())
@@ -210,6 +209,6 @@ impl Display for SeatingChart {
             })
             .collect::<Vec<String>>()
             .join("\n");
-        write!(f, "{}", disp)
+        write!(f, "{}", s)
     }
 }

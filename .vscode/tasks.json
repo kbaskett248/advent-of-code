@@ -32,7 +32,8 @@
             "type": "shell",
             "command": "cargo",
             "args": [
-                "run"
+                "run",
+                "."
             ],
             "options": {
                 "cwd": "${workspaceFolder}/${relativeFileDirname}"
