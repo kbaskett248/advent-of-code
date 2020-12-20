@@ -57,12 +57,10 @@ impl Tile {
     fn to_char(&self) -> char {
         match self {
             Tile::Floor => '.',
-            Tile::Seat{ occupied } => {
-                match occupied {
-                    true => '#',
-                    false => 'L',
-                }
-            }
+            Tile::Seat { occupied } => match occupied {
+                true => '#',
+                false => 'L',
+            },
         }
     }
 }
@@ -121,7 +119,7 @@ impl fmt::Display for OnlyImplementedForSeatError {
 }
 impl Error for OnlyImplementedForSeatError {}
 
-pub type NeighborFunc = fn(&Vec<Vec<Tile>>, usize, usize) -> Vec<Tile>;
+pub type NeighborFunc = fn(&[Vec<Tile>], usize, usize) -> Vec<Tile>;
 
 #[derive(Clone)]
 pub struct SeatingChart {
@@ -131,7 +129,11 @@ pub struct SeatingChart {
 }
 
 impl SeatingChart {
-    pub fn from_lines(lines: impl Iterator<Item = String>, max_occupied: usize, neighbors: NeighborFunc) -> SeatingChart {
+    pub fn from_lines(
+        lines: impl Iterator<Item = String>,
+        max_occupied: usize,
+        neighbors: NeighborFunc,
+    ) -> SeatingChart {
         let seats = lines
             .map(|line| {
                 line.chars()
@@ -139,7 +141,11 @@ impl SeatingChart {
                     .collect()
             })
             .collect();
-        SeatingChart { seats, max_occupied, neighbors }
+        SeatingChart {
+            seats,
+            max_occupied,
+            neighbors,
+        }
     }
 
     fn next_frame(&self) -> SeatingChart {
@@ -151,7 +157,9 @@ impl SeatingChart {
                 .map(|(r, row)| {
                     row.iter()
                         .enumerate()
-                        .map(|(c, tile)| tile.next_frame((self.neighbors)(&self.seats, r, c), self.max_occupied))
+                        .map(|(c, tile)| {
+                            tile.next_frame((self.neighbors)(&self.seats, r, c), self.max_occupied)
+                        })
                         .collect()
                 })
                 .collect(),
@@ -161,7 +169,8 @@ impl SeatingChart {
     }
 
     pub fn count_occupied(&self) -> usize {
-        self.seats.iter()
+        self.seats
+            .iter()
             .flat_map(|row| row.iter())
             .filter(|tile| tile.is_occupied())
             .count()
@@ -176,7 +185,11 @@ impl Iterator for SeatingChart {
         let next = self.next_frame();
         self.seats = next.seats;
 
-        Some(SeatingChart { seats: current, max_occupied: self.max_occupied, neighbors: self.neighbors })
+        Some(SeatingChart {
+            seats: current,
+            max_occupied: self.max_occupied,
+            neighbors: self.neighbors,
+        })
     }
 }
 
@@ -190,12 +203,10 @@ impl PartialEq for SeatingChart {
 
 impl Display for SeatingChart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = self.seats.iter()
-            .map(|row| {
-                row.iter()
-                    .map(|tile| tile.to_char())
-                    .collect::<String>()
-            })
+        let s = self
+            .seats
+            .iter()
+            .map(|row| row.iter().map(|tile| tile.to_char()).collect::<String>())
             .collect::<Vec<String>>()
             .join("\n");
         write!(f, "{}", s)

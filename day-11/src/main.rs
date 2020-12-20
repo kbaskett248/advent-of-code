@@ -1,7 +1,7 @@
 // https://adventofcode.com/2020/day/11
 
-use std::cmp::{min, max};
 use mylib::read_lines;
+use std::cmp::{max, min};
 use std::time::Instant;
 
 mod types;
@@ -56,7 +56,7 @@ fn main() {
 // Simulate your seating area by applying the seating rules repeatedly
 // until no seats change state. How many seats end up occupied?
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
-    fn neighbors(seats: &Vec<Vec<types::Tile>>, row: usize, col: usize) -> Vec<types::Tile> {
+    fn neighbors(seats: &[Vec<types::Tile>], row: usize, col: usize) -> Vec<types::Tile> {
         let r_min: usize = max(row as i8 - 1, 0) as usize;
         let r_max: usize = min(row + 1, seats.len() - 1) as usize;
 
@@ -75,7 +75,7 @@ fn part_1(lines: impl Iterator<Item = String>) -> usize {
 
         tiles
     }
-    
+
     let mut chart = types::SeatingChart::from_lines(lines, 4, neighbors).peekable();
     let mut current = chart.next().expect("No seating chart");
     while current != *chart.peek().expect("Failed to return item") {
@@ -85,11 +85,11 @@ fn part_1(lines: impl Iterator<Item = String>) -> usize {
     current.count_occupied()
 }
 
-// Given the new visibility method and the rule change for occupied seats becoming empty, 
+// Given the new visibility method and the rule change for occupied seats becoming empty,
 // once equilibrium is reached, how many seats end up occupied?
 fn part_2(lines: impl Iterator<Item = String>) -> usize {
-    fn neighbors(seats: &Vec<Vec<types::Tile>>, row: usize, col: usize) -> Vec<types::Tile> {
-        let modifiers: Vec<fn(i8) -> i8> = vec![|n| n-1, |n| n, |n| n+1];
+    fn neighbors(seats: &[Vec<types::Tile>], row: usize, col: usize) -> Vec<types::Tile> {
+        let modifiers: Vec<fn(i8) -> i8> = vec![|n| n - 1, |n| n, |n| n + 1];
 
         let r_max = (seats.len() - 1) as i8;
         let c_max = (seats[row].len() - 1) as i8;
@@ -102,7 +102,7 @@ fn part_2(lines: impl Iterator<Item = String>) -> usize {
                 let mut c = cm(col as i8);
 
                 if (r, c) == (row as i8, col as i8) {
-                    continue
+                    continue;
                 }
 
                 while r >= 0 && r <= r_max && c >= 0 && c <= c_max {
@@ -110,10 +110,10 @@ fn part_2(lines: impl Iterator<Item = String>) -> usize {
                         types::Tile::Floor => {
                             r = rm(r);
                             c = cm(c);
-                        },
-                        seat @ types::Tile::Seat{..} => {
+                        }
+                        seat @ types::Tile::Seat { .. } => {
                             tiles.push(seat);
-                            break
+                            break;
                         }
                     }
                 }
@@ -122,7 +122,7 @@ fn part_2(lines: impl Iterator<Item = String>) -> usize {
 
         tiles
     }
-    
+
     let mut chart = types::SeatingChart::from_lines(lines, 5, neighbors).peekable();
     let mut current = chart.next().expect("No seating chart");
     while current != *chart.peek().expect("Failed to return item") {
