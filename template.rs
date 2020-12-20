@@ -1,5 +1,5 @@
-use std::time::Instant;
 use mylib::read_lines;
+use std::time::Instant;
 
 #[cfg(test)]
 mod tests {
