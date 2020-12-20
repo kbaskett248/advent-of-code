@@ -46,20 +46,24 @@ fn main() {
 // Simulate your seating area by applying the seating rules repeatedly
 // until no seats change state. How many seats end up occupied?
 fn part_1(lines: impl Iterator<Item = String>) -> usize {
-    fn neighbors(seats: &[&[types::Tile]], row: usize, col: usize) -> impl Iterator<Item = types::Tile> + '_ {
+    fn neighbors(seats: &Vec<Vec<types::Tile>>, row: usize, col: usize) -> Vec<types::Tile> {
         let r_min: usize = max(row as i8 - 1, 0) as usize;
         let r_max: usize = min(row + 1, seats.len() - 1) as usize;
 
         let c_min: usize = max(col as i8 - 1, 0) as usize;
         let c_max: usize = min(col + 1, seats[row].len() - 1) as usize;
 
-        (r_min..=r_max)
-            .flat_map(move |r| {
-                (c_min..=c_max)
-                    .filter(move |&c| r != row || c != col)
-                    .map(move |c| (r, c))
-            })
-            .map(move |(r, c)| seats[r][c])
+        let mut tiles = Vec::with_capacity(8);
+
+        for r in r_min..=r_max {
+            for c in c_min..=c_max {
+                if !(r == row && c == col) {
+                    tiles.push(seats[r][c]);
+                }
+            }
+        }
+
+        tiles
     }
     
     let mut chart = types::SeatingChart::from_lines(lines, 4, neighbors).peekable();

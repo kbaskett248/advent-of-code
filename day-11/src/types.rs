@@ -1,7 +1,6 @@
-use std::cmp::{max, min};
 use std::error::Error;
 use std::fmt;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::str::FromStr;
 
 #[derive(Copy, Clone, Debug, Eq)]
@@ -32,12 +31,12 @@ impl Tile {
         }
     }
 
-    pub fn next_frame(&self, mut neighbors: impl Iterator<Item = Tile>, max_occupied: usize) -> Tile {
+    pub fn next_frame(&self, neighbors: Vec<Tile>, max_occupied: usize) -> Tile {
         match *self {
             a @ Tile::Floor => a,
             Tile::Seat { occupied } => match occupied {
                 true => {
-                    let num_occupied = neighbors.filter(|t| t.is_occupied()).count();
+                    let num_occupied = neighbors.iter().filter(|t| t.is_occupied()).count();
                     if num_occupied >= max_occupied {
                         self.vacate().expect("Was not seat")
                     } else {
@@ -45,7 +44,7 @@ impl Tile {
                     }
                 }
                 false => {
-                    if neighbors.any(|t| t.is_occupied()) {
+                    if neighbors.iter().any(|t| t.is_occupied()) {
                         *self
                     } else {
                         self.occupy().expect("Was not seat")
@@ -122,15 +121,17 @@ impl fmt::Display for OnlyImplementedForSeatError {
 }
 impl Error for OnlyImplementedForSeatError {}
 
-#[derive(Clone, Debug, Eq)]
+pub type NeighborFunc = fn(&Vec<Vec<Tile>>, usize, usize) -> Vec<Tile>;
+
+#[derive(Clone)]
 pub struct SeatingChart {
     seats: Vec<Vec<Tile>>,
     max_occupied: usize,
-    neighbors: Fn(Vec<Vec<Tile>>, usize, usize) -> impl Iterator<Item = Tile>
+    neighbors: NeighborFunc,
 }
 
 impl SeatingChart {
-    pub fn from_lines(lines: impl Iterator<Item = String>, max_occupied: usize) -> SeatingChart {
+    pub fn from_lines(lines: impl Iterator<Item = String>, max_occupied: usize, neighbors: NeighborFunc) -> SeatingChart {
         let seats = lines
             .map(|line| {
                 line.chars()
@@ -138,23 +139,7 @@ impl SeatingChart {
                     .collect()
             })
             .collect();
-        SeatingChart { seats, max_occupied }
-    }
-
-    fn neighbors(&self, row: usize, col: usize) -> impl Iterator<Item = Tile> + '_ {
-        let r_min: usize = max(row as i8 - 1, 0) as usize;
-        let r_max: usize = min(row + 1, self.seats.len() - 1) as usize;
-
-        let c_min: usize = max(col as i8 - 1, 0) as usize;
-        let c_max: usize = min(col + 1, self.seats[row].len() - 1) as usize;
-
-        (r_min..=r_max)
-            .flat_map(move |r| {
-                (c_min..=c_max)
-                    .filter(move |&c| r != row || c != col)
-                    .map(move |c| (r, c))
-            })
-            .map(move |(r, c)| self.seats[r][c])
+        SeatingChart { seats, max_occupied, neighbors }
     }
 
     fn next_frame(&self) -> SeatingChart {
@@ -166,11 +151,12 @@ impl SeatingChart {
                 .map(|(r, row)| {
                     row.iter()
                         .enumerate()
-                        .map(|(c, tile)| tile.next_frame(self.neighbors(r, c), self.max_occupied))
+                        .map(|(c, tile)| tile.next_frame((self.neighbors)(&self.seats, r, c), self.max_occupied))
                         .collect()
                 })
                 .collect(),
             max_occupied: self.max_occupied,
+            neighbors: self.neighbors,
         }
     }
 
@@ -190,7 +176,7 @@ impl Iterator for SeatingChart {
         let next = self.next_frame();
         self.seats = next.seats;
 
-        Some(SeatingChart { seats: current, max_occupied: self.max_occupied })
+        Some(SeatingChart { seats: current, max_occupied: self.max_occupied, neighbors: self.neighbors })
     }
 }
 
