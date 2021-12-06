@@ -26,22 +26,30 @@ mod tests {
     }
 
     #[test]
+    fn test_part_2_example() {
+        assert_eq!(
+            part_2(read_lines("p1.example.txt").expect("read_lines failed")),
+            5
+        );
+    }
+
+    #[test]
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            1523
         );
     }
 }
 
 fn main() {
-    let start = Instant::now();
+    let mut start = Instant::now();
     let p1 = part_1(read_lines("input.txt").expect("read_lines failed"));
     println!("PART 1: {:?} ({:?})", p1, start.elapsed());
 
-    // start = Instant::now();
-    // let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
-    // println!("PART 2: {:?} ({:?})", p2, start.elapsed());
+    start = Instant::now();
+    let p2 = part_2(read_lines("input.txt").expect("read_lines failed"));
+    println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
 // How many measurements are larger than the previous measurement?
@@ -49,7 +57,7 @@ fn part_1(lines: impl Iterator<Item = String>) -> i32 {
     let nums: Vec<u16> = parse_lines(lines).collect();
     let result = nums.iter()
                      .zip(nums.iter().skip(1))
-                     .fold(0, |counter: i32, (&num1, &num2)| {
+                     .fold(0, |counter: i32, (num1, num2)| {
                          if num2 > num1 {
                              return counter + 1;
                          }
@@ -58,4 +66,22 @@ fn part_1(lines: impl Iterator<Item = String>) -> i32 {
     return result;
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(lines: impl Iterator<Item = String>) -> i32 {
+    let nums: Vec<u16> = parse_lines(lines).collect();
+    let sums: Vec<u16> = nums.iter()
+                             .zip(nums.iter().skip(1))
+                             .zip(nums.iter().skip(2))
+                             .map(|((num1, num2), num3)| {
+                                         return num1 + num2 + num3;
+                                     })
+                             .collect();
+    let result = sums.iter()
+                     .zip(sums.iter().skip(1))
+                     .fold(0, |counter: i32, (num1, num2)| {
+                         if num2 > num1 {
+                             return counter + 1;
+                         }
+                         return counter;
+                     });
+    return result;
+}
