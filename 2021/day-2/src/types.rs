@@ -5,9 +5,9 @@ use std::str::FromStr;
 
 #[derive(Debug)]
 pub enum Command {
-    Forward { dist: u8 },
-    Up { dist: u8 },
-    Down { dist: u8 },
+    Forward { dist: u32 },
+    Up { dist: u32 },
+    Down { dist: u32 },
 }
 
 impl FromStr for Command {
@@ -20,7 +20,7 @@ impl FromStr for Command {
             .next()
             .ok_or(CommandParseError {})?
             .trim()
-            .parse::<u8>()
+            .parse::<u32>()
             .map_err(|_| CommandParseError {})?;
         match com {
             "forward" => Ok(Command::Forward { dist: value }),
@@ -40,4 +40,31 @@ impl Display for CommandParseError {
     }
 }
 impl Error for CommandParseError {}
+
+#[derive(Debug)]
+pub struct State {
+    depth: u32,
+    distance: u32,
+}
+
+impl State {
+    pub fn new() -> State {
+        State {
+            depth: 0,
+            distance: 0,
+        }
+    }
+
+    pub fn process(&mut self, command: &Command) {
+        match command {
+            Command::Forward { dist } => self.distance += dist,
+            Command::Up { dist } => self.depth -= dist,
+            Command::Down { dist } => self.depth += dist,
+        };
+    }
+
+    pub fn product(&self) -> u32 {
+        self.depth * self.distance
+    }
+}
 

@@ -13,7 +13,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("p1.example.txt").expect("read_lines failed")),
-            ()
+            150
         );
     }
 
@@ -21,7 +21,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            2027977
         );
     }
 
@@ -53,9 +53,15 @@ fn main() {
 }
 
 // How many measurements are larger than the previous measurement?
-fn part_1(lines: impl Iterator<Item = String>) {
+fn part_1(lines: impl Iterator<Item = String>) -> u32 {
     let commands: Vec<types::Command> = parse_lines(lines).collect();
-    println!("commands: {:?}", commands);
+    let state = types::State::new();
+    let final_state = commands.iter()
+            .fold(state, | mut state, command | {
+                state.process(command);
+                state
+            });
+    final_state.product()
 }
 
 fn part_2(lines: impl Iterator<Item = String>) {
