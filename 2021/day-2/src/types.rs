@@ -45,6 +45,7 @@ impl Error for CommandParseError {}
 pub struct State {
     depth: u32,
     distance: u32,
+    aim: u32,
 }
 
 impl State {
@@ -52,6 +53,7 @@ impl State {
         State {
             depth: 0,
             distance: 0,
+            aim: 0,
         }
     }
 
@@ -60,6 +62,17 @@ impl State {
             Command::Forward { dist } => self.distance += dist,
             Command::Up { dist } => self.depth -= dist,
             Command::Down { dist } => self.depth += dist,
+        };
+    }
+
+    pub fn process2(&mut self, command: &Command) {
+        match command {
+            Command::Forward { dist } => {
+                self.distance += dist;
+                self.depth += self.aim * dist
+            },
+            Command::Up { dist } => self.aim -= dist,
+            Command::Down { dist } => self.aim += dist,
         };
     }
 

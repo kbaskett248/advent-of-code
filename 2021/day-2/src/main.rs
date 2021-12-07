@@ -29,7 +29,7 @@ mod tests {
     fn test_part_2_example() {
         assert_eq!(
             part_2(read_lines("p1.example.txt").expect("read_lines failed")),
-            ()
+            900
         );
     }
 
@@ -37,7 +37,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            1903644897
         );
     }
 }
@@ -64,5 +64,13 @@ fn part_1(lines: impl Iterator<Item = String>) -> u32 {
     final_state.product()
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {
+fn part_2(lines: impl Iterator<Item = String>) -> u32 {
+    let commands: Vec<types::Command> = parse_lines(lines).collect();
+    let state = types::State::new();
+    let final_state = commands.iter()
+            .fold(state, | mut state, command | {
+                state.process2(command);
+                state
+            });
+    final_state.product()
 }
