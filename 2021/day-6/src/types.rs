@@ -14,28 +14,40 @@ impl FromStr for Lanternfish {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let days = s.parse::<u8>();
-        InitialFish {days: days}
+        Lanternfish::InitialFish {days: days}
     }
 }
 
 #[derive(Debug)]
 pub struct FishParseError {}
 
-impl Display for CommandParseError {
+impl Display for FishParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Fish parse error")
     }
 }
-impl Error for CommandParseError {}
+impl Error for FishParseError {}
 
 impl Lanternfish {
     pub fn spawn(&self, last_day: &u8) -> u32 {
         match self {
-            Lanternfish::InitialFish => {
-                
+            Lanternfish::InitialFish { days } => {
+                let mut num_fish = 1;
+                let mut current_day = days;
+                while current_day <= &*last_day {
+                    num_fish += Lanternfish::BornFish { birth_day: current_day }.spawn(last_day);
+                    current_day += 7;
+                };
+                num_fish
             },
-            Lanternfish::BornFish => {
-
+            Lanternfish::BornFish {birth_day } => {
+                let mut num_fish = 1;
+                let mut current_day = birth_day + 8;
+                while current_day <= &*last_day {
+                    num_fish += Lanternfish::BornFish { birth_day: current_day }.spawn(last_day);
+                    current_day += 8;
+                }
+                num_fish
             }
         }
     }

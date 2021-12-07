@@ -1,6 +1,8 @@
 use mylib::read_lines;
 use std::time::Instant;
 
+mod types;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -48,6 +50,11 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(lines: impl Iterator<Item = String>) -> u32 {
+    let first_line = lines.next();
+    first_line.split(",")
+              .map(| s | -> s.parse::<types::Lanternfish>())
+              .fold(0, | num_fish, fish | -> num_fish + fish.spawn(80))
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}
