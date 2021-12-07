@@ -11,7 +11,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            5934
         );
     }
 
@@ -19,7 +19,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            380612
         );
     }
 
@@ -27,7 +27,7 @@ mod tests {
     fn test_part_2_example() {
         assert_eq!(
             part_2(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            26984457539
         );
     }
 
@@ -35,7 +35,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            0
         );
     }
 }
@@ -50,11 +50,26 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) -> u32 {
-    let first_line = lines.next();
+fn part_1(mut lines: impl Iterator<Item = String>) -> u64 {
+    let first_line = lines.next().expect("Could not parse first line!");
     first_line.split(",")
-              .map(| s | -> s.parse::<types::Lanternfish>())
-              .fold(0, | num_fish, fish | -> num_fish + fish.spawn(80))
+              .map(| s | {s.parse::<types::Lanternfish>()})
+              .fold(0, | num_fish, fish_result | {
+                  match fish_result {
+                      Ok(fish) => num_fish + fish.spawn(80),
+                      _ => num_fish,
+                  }
+              })
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(mut lines: impl Iterator<Item = String>) -> u64 {
+    let first_line = lines.next().expect("Could not parse first line!");
+    first_line.split(",")
+              .map(| s | {s.parse::<types::Lanternfish>()})
+              .fold(0, | num_fish, fish_result | {
+                  match fish_result {
+                      Ok(fish) => num_fish + fish.spawn(256),
+                      _ => num_fish,
+                  }
+              })
+}
