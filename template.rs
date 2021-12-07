@@ -6,9 +6,25 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_part_1_example() {
+        assert_eq!(
+            part_1(read_lines("example.txt").expect("read_lines failed")),
+            ()
+        );
+    }
+
+    #[test]
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
+            ()
+        );
+    }
+
+    #[test]
+    fn test_part_2_example() {
+        assert_eq!(
+            part_2(read_lines("example.txt").expect("read_lines failed")),
             ()
         );
     }
