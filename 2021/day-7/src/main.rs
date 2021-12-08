@@ -9,7 +9,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            37
         );
     }
 
@@ -17,7 +17,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            347509
         );
     }
 
@@ -48,6 +48,19 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(mut lines: impl Iterator<Item = String>) -> u32 {
+    let first_line = lines.next().expect("Could not parse first line!");
+    let numbers: Vec<u16> = first_line
+        .split(',')
+        .filter_map(|s| s.parse::<u16>().ok())
+        .collect();
+    let median = stats::median(numbers.iter().cloned())
+        .expect("No median found")
+        .round() as u16;
+    numbers
+        .iter()
+        .map(|x| (*x as i32 - median as i32).abs() as u32)
+        .sum()
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}

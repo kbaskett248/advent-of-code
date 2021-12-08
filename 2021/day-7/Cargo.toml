@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 mylib = { path = "../../mylib" }
+streaming-stats = "0.2"
