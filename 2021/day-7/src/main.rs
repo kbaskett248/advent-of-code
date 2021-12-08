@@ -1,6 +1,8 @@
 use mylib::read_lines;
 use std::time::Instant;
 
+use std::cmp::min;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -25,7 +27,7 @@ mod tests {
     fn test_part_2_example() {
         assert_eq!(
             part_2(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            168
         );
     }
 
@@ -33,7 +35,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            98257206
         );
     }
 }
@@ -63,4 +65,23 @@ fn part_1(mut lines: impl Iterator<Item = String>) -> u32 {
         .sum()
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(mut lines: impl Iterator<Item = String>) -> u32 {
+    let first_line = lines.next().expect("Could not parse first line!");
+    let numbers: Vec<u16> = first_line
+        .split(',')
+        .filter_map(|s| s.parse::<u16>().ok())
+        .collect();
+    let mean = (stats::mean(numbers.iter().cloned()).round()) as u16;
+    min(
+        numbers
+            .iter()
+            .map(|x| (*x as i32 - mean as i32).abs() as u32)
+            .map(|x| x * (x + 1) / 2)
+            .sum(),
+        numbers
+            .iter()
+            .map(|x| (*x as i32 - mean as i32 + 1).abs() as u32)
+            .map(|x| x * (x + 1) / 2)
+            .sum(),
+    )
+}
