@@ -3,7 +3,9 @@ use std::fmt;
 use std::fmt::{Debug, Display};
 use std::str::FromStr;
 
-#[derive(Debug)]
+use cached::proc_macro::cached;
+
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub enum Lanternfish {
     InitialFish { days: u16 },
     BornFish { birth_day: u16 },
@@ -14,7 +16,7 @@ impl FromStr for Lanternfish {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.parse::<u16>() {
-            Ok(days) => Ok(Lanternfish::InitialFish {days: days}),
+            Ok(days) => Ok(Lanternfish::InitialFish { days: days }),
             Err(_) => Err(FishParseError {}),
         }
     }
@@ -37,20 +39,60 @@ impl Lanternfish {
                 let mut num_fish = 1;
                 let mut current_day = days + 1 as u16;
                 while current_day <= last_day {
-                    num_fish += Lanternfish::BornFish { birth_day: current_day }.spawn(last_day);
-                    current_day += 7;
-                };
-                num_fish
-            },
-            Lanternfish::BornFish { birth_day } => {
-                let mut num_fish = 1;
-                let mut current_day = birth_day + 9 as u16;
-                while current_day <= last_day {
-                    num_fish += Lanternfish::BornFish { birth_day: current_day }.spawn(last_day);
+                    num_fish += Lanternfish::BornFish {
+                        birth_day: current_day,
+                    }
+                    .spawn(last_day);
                     current_day += 7;
                 }
                 num_fish
             }
+            Lanternfish::BornFish { birth_day } => {
+                let mut num_fish = 1;
+                let mut current_day = birth_day + 9 as u16;
+                while current_day <= last_day {
+                    num_fish += Lanternfish::BornFish {
+                        birth_day: current_day,
+                    }
+                    .spawn(last_day);
+                    current_day += 7;
+                }
+                num_fish
+            }
+        }
+    }
+}
+
+#[cached]
+pub fn spawn(fish: Lanternfish, last_day: u16) -> u64 {
+    match fish {
+        Lanternfish::InitialFish { days } => {
+            let mut num_fish = 1;
+            let mut current_day = days + 1 as u16;
+            while current_day <= last_day {
+                num_fish += spawn(
+                    Lanternfish::BornFish {
+                        birth_day: current_day,
+                    },
+                    last_day,
+                );
+                current_day += 7;
+            }
+            num_fish
+        }
+        Lanternfish::BornFish { birth_day } => {
+            let mut num_fish = 1;
+            let mut current_day = birth_day + 9 as u16;
+            while current_day <= last_day {
+                num_fish += spawn(
+                    Lanternfish::BornFish {
+                        birth_day: current_day,
+                    },
+                    last_day,
+                );
+                current_day += 7;
+            }
+            num_fish
         }
     }
 }
