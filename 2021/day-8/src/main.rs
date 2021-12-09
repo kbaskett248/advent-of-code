@@ -1,5 +1,7 @@
-use mylib::read_lines;
+use mylib::{parse_lines, read_lines};
 use std::time::Instant;
+
+mod types;
 
 #[cfg(test)]
 mod tests {
@@ -25,7 +27,7 @@ mod tests {
     fn test_part_2_example() {
         assert_eq!(
             part_2(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            61229
         );
     }
 
@@ -33,7 +35,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            0
         );
     }
 }
@@ -49,12 +51,8 @@ fn main() {
 }
 
 fn part_1(lines: impl Iterator<Item = String>) -> u16 {
-    let mut counter = 0;
-    for line in lines {
-        let mut parts = line.split('|');
-        parts.next();
-        let output_values = parts.next().expect("Missing output").trim();
-        for digit in output_values.split(' ') {
+    parse_lines(lines).fold(0, |mut counter, entry: types::Entry| {
+        for digit in entry.digits {
             match digit.len() {
                 2 => counter += 1,
                 3 => counter += 1,
@@ -63,8 +61,21 @@ fn part_1(lines: impl Iterator<Item = String>) -> u16 {
                 _ => (),
             }
         }
-    }
-    counter
+        counter
+    })
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(lines: impl Iterator<Item = String>) -> u32 {
+    parse_lines(lines).fold(0, |mut counter, entry: types::Entry| {
+        for digit in entry.digits {
+            match digit.len() {
+                2 => counter += 1,
+                3 => counter += 1,
+                4 => counter += 1,
+                7 => counter += 1,
+                _ => (),
+            }
+        }
+        counter
+    })
+}
