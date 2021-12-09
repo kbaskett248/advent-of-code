@@ -9,7 +9,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            26
         );
     }
 
@@ -17,7 +17,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            342
         );
     }
 
@@ -48,6 +48,23 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(lines: impl Iterator<Item = String>) -> u16 {
+    let mut counter = 0;
+    for line in lines {
+        let mut parts = line.split('|');
+        parts.next();
+        let output_values = parts.next().expect("Missing output").trim();
+        for digit in output_values.split(' ') {
+            match digit.len() {
+                2 => counter += 1,
+                3 => counter += 1,
+                4 => counter += 1,
+                7 => counter += 1,
+                _ => (),
+            }
+        }
+    }
+    counter
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}
