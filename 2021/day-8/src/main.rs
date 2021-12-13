@@ -35,7 +35,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            0
+            1068933
         );
     }
 }
@@ -66,16 +66,7 @@ fn part_1(lines: impl Iterator<Item = String>) -> u16 {
 }
 
 fn part_2(lines: impl Iterator<Item = String>) -> u32 {
-    parse_lines(lines).fold(0, |mut counter, entry: types::Entry| {
-        for digit in entry.digits {
-            match digit.len() {
-                2 => counter += 1,
-                3 => counter += 1,
-                4 => counter += 1,
-                7 => counter += 1,
-                _ => (),
-            }
-        }
-        counter
-    })
+    parse_lines(lines)
+        .map(|e: types::Entry| types::MappedEntry::from(e).value())
+        .sum()
 }

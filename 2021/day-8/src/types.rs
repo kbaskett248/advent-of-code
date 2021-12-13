@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
 use std::fmt::{Debug, Display};
@@ -43,46 +44,103 @@ impl Display for EntryParseError {
 }
 impl Error for EntryParseError {}
 
+#[derive(Debug)]
 pub struct MappedEntry {
     pub digit_mapping: HashMap<String, u8>,
     pub digits: Vec<String>,
 }
 
-fn sort_string(s: &String) -> String {
+fn sort_string(s: &str) -> String {
     let mut sorted_digit = s.chars().collect::<Vec<char>>();
     sorted_digit.sort_unstable();
     String::from_iter(sorted_digit)
 }
 
-// 5: 2, 3, 5,
-// 6: 0, 6, 9
-
 impl From<Entry> for MappedEntry {
     fn from(entry: Entry) -> MappedEntry {
         let mut digit_mapping: HashMap<String, u8> = HashMap::with_capacity(10);
+        let mut set_mapping: HashMap<u8, HashSet<char>> = HashMap::with_capacity(10);
         let mut remaining_patterns: Vec<String> = Vec::with_capacity(6);
         for pattern in entry.patterns {
             let sorted_pattern = sort_string(&pattern);
-            match sorted_pattern.len() {
-                2 => {
-                    digit_mapping.insert(sorted_pattern, 1);
-                }
-                3 => {
-                    digit_mapping.insert(sorted_pattern, 7);
-                }
-                4 => {
-                    digit_mapping.insert(sorted_pattern, 4);
-                }
-                7 => {
-                    digit_mapping.insert(sorted_pattern, 8);
-                }
-                _ => remaining_patterns.push(sorted_pattern),
+            let pattern_set: HashSet<char> = HashSet::from_iter(pattern.chars());
+            let matched_number = match sorted_pattern.len() {
+                2 => 1,
+                3 => 7,
+                4 => 4,
+                7 => 8,
+                _ => 10,
             };
+            if matched_number == 10 {
+                remaining_patterns.push(sorted_pattern)
+            } else {
+                digit_mapping.insert(sorted_pattern, matched_number);
+                set_mapping.insert(matched_number, pattern_set);
+            }
         }
-        for pattern in remaining_patterns {}
+        for pattern in remaining_patterns {
+            let pattern_set: HashSet<char> = HashSet::from_iter(pattern.chars());
+            let matched_number = match pattern.len() {
+                5 => {
+                    if set_mapping
+                        .get(&1)
+                        .expect("1 missing")
+                        .difference(&pattern_set)
+                        .count()
+                        == 0
+                    {
+                        3
+                    } else if set_mapping
+                        .get(&4)
+                        .expect("4 missing")
+                        .difference(&pattern_set)
+                        .count()
+                        == 1
+                    {
+                        5
+                    } else {
+                        2
+                    }
+                }
+                6 => {
+                    if set_mapping
+                        .get(&1)
+                        .expect("1 missing")
+                        .difference(&pattern_set)
+                        .count()
+                        == 1
+                    {
+                        6
+                    } else if set_mapping
+                        .get(&4)
+                        .expect("4 missing")
+                        .difference(&pattern_set)
+                        .count()
+                        == 0
+                    {
+                        9
+                    } else {
+                        0
+                    }
+                }
+                _ => 10,
+            };
+            digit_mapping.insert(pattern, matched_number);
+        }
         MappedEntry {
             digit_mapping,
-            digits: entry.digits,
+            digits: entry.digits.iter().map(|s| sort_string(s)).collect(),
         }
+    }
+}
+
+impl MappedEntry {
+    pub fn value(&self) -> u32 {
+        self.digits
+            .iter()
+            .map(|d| std::char::from_digit(*self.digit_mapping.get(d).unwrap() as u32, 10).unwrap())
+            .collect::<String>()[..]
+            .parse::<u32>()
+            .unwrap()
     }
 }
