@@ -1,6 +1,8 @@
 use mylib::read_lines;
 use std::time::Instant;
 
+mod types;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -9,7 +11,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            17
         );
     }
 
@@ -17,7 +19,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            0
         );
     }
 
@@ -48,6 +50,11 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(lines: impl Iterator<Item = String>) -> u32 {
+    let paper = types::TransparentPaper::from_lines(lines);
+    let new_paper = paper.apply_fold(&paper.instructions[0]);
+    println!("{:?}", new_paper.dots);
+    new_paper.count_dots()
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}
