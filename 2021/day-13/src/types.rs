@@ -44,7 +44,7 @@ impl From<ParseIntError> for PointParseError {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Fold {
     VerticalFold { x: u32 },
     HorizontalFold { y: u32 },
@@ -116,7 +116,7 @@ impl TransparentPaper {
                     .filter_map(|point| {
                         if point.x > *x {
                             Some(Point {
-                                x: 2 * point.x - x,
+                                x: 2 * x - point.x,
                                 y: point.y,
                             })
                         } else if point.x == *x {
@@ -139,7 +139,7 @@ impl TransparentPaper {
                         if point.y > *y {
                             Some(Point {
                                 x: point.x,
-                                y: 2 * point.y - y,
+                                y: 2 * y - point.y,
                             })
                         } else if point.y == *y {
                             None

@@ -19,7 +19,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            0
+            763
         );
     }
 
@@ -53,8 +53,12 @@ fn main() {
 fn part_1(lines: impl Iterator<Item = String>) -> u32 {
     let paper = types::TransparentPaper::from_lines(lines);
     let new_paper = paper.apply_fold(&paper.instructions[0]);
-    println!("{:?}", new_paper.dots);
     new_paper.count_dots()
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(lines: impl Iterator<Item = String>) {
+    let paper = types::TransparentPaper::from_lines(lines);
+    let instructions = paper.instructions.clone();
+    let new_paper = instructions.iter().fold(paper, |p, f| p.apply_fold(f));
+    println!("{:?}", new_paper.dots);
+}
