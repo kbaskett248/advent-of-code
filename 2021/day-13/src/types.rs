@@ -159,4 +159,26 @@ impl TransparentPaper {
     pub fn count_dots(&self) -> u32 {
         self.dots.len() as u32
     }
+
+    fn has_dot(&self, x: u32, y: u32) -> bool {
+        self.dots.contains(&Point { x, y })
+    }
+
+    pub fn output(&self) -> String {
+        let max_x: usize = self.dots.iter().map(|d| d.x).max().unwrap() as usize;
+        let max_y: usize = self.dots.iter().map(|d| d.y).max().unwrap() as usize;
+        let mut result: Vec<String> = Vec::with_capacity(max_y);
+        for y in 0..max_y + 1 {
+            let mut s = String::with_capacity(max_x);
+            for x in 0..max_x + 1 {
+                if self.has_dot(x as u32, y as u32) {
+                    s.push('#');
+                } else {
+                    s.push(' ');
+                }
+            }
+            result.push(s);
+        }
+        result.join("\n").to_string()
+    }
 }

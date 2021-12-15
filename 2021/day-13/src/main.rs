@@ -60,5 +60,5 @@ fn part_2(lines: impl Iterator<Item = String>) {
     let paper = types::TransparentPaper::from_lines(lines);
     let instructions = paper.instructions.clone();
     let new_paper = instructions.iter().fold(paper, |p, f| p.apply_fold(f));
-    println!("{:?}", new_paper.dots);
+    println!("{}", new_paper.output());
 }
