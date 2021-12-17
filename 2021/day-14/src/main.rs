@@ -9,7 +9,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            1588
         );
     }
 
@@ -17,7 +17,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            0
         );
     }
 
