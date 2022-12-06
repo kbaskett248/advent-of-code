@@ -1,4 +1,4 @@
-use mylib::read_lines;
+use mylib::{chunk_lines, parse_lines, read_lines};
 use std::time::Instant;
 
 #[cfg(test)]
@@ -25,7 +25,7 @@ mod tests {
     // fn test_part_2_example() {
     //     assert_eq!(
     //         part_2(read_lines("example.txt").expect("read_lines failed")),
-    //         ()
+    //         45000
     //     );
     // }
 
@@ -49,19 +49,14 @@ fn main() {
 }
 
 fn part_1(lines: impl Iterator<Item = String>) -> u32 {
-    let mut accumulator = 0;
-    let mut max = 0;
-    for line in lines {
-        if let Ok(num) = line.parse::<u32>() {
-            accumulator = accumulator + num;
-        } else {
-            if accumulator > max {
-                max = accumulator;
-            }
-            accumulator = 0;
-        }
-    }
-    max
+    total_cal_iter(lines).max().unwrap()
+}
+
+fn total_cal_iter(lines: impl Iterator<Item = String>) -> impl Iterator<Item = u32> {
+    chunk_lines(lines).map(|chunk| {
+        let calories = parse_lines::<u32>(chunk.into_iter());
+        calories.sum::<u32>()
+    })
 }
 
 fn part_2(lines: impl Iterator<Item = String>) {}
