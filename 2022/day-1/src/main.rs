@@ -21,21 +21,21 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn test_part_2_example() {
-    //     assert_eq!(
-    //         part_2(read_lines("example.txt").expect("read_lines failed")),
-    //         45000
-    //     );
-    // }
+    #[test]
+    fn test_part_2_example() {
+        assert_eq!(
+            part_2(read_lines("example.txt").expect("read_lines failed")),
+            45000
+        );
+    }
 
-    // #[test]
-    // fn test_part_2() {
-    //     assert_eq!(
-    //         part_2(read_lines("input.txt").expect("read_lines failed")),
-    //         ()
-    //     );
-    // }
+    #[test]
+    fn test_part_2() {
+        assert_eq!(
+            part_2(read_lines("input.txt").expect("read_lines failed")),
+            197301
+        );
+    }
 }
 
 fn main() {
@@ -59,4 +59,9 @@ fn total_cal_iter(lines: impl Iterator<Item = String>) -> impl Iterator<Item = u
     })
 }
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(lines: impl Iterator<Item = String>) -> u32 {
+    let mut total_cals: Vec<u32> = total_cal_iter(lines).collect();
+    total_cals.sort();
+    let slice = &total_cals[total_cals.len() - 3..];
+    slice.into_iter().sum::<u32>()
+}
