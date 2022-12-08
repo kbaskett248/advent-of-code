@@ -1,5 +1,7 @@
-use mylib::read_lines;
+use mylib::{parse_lines, read_lines};
 use std::time::Instant;
+
+mod types;
 
 #[cfg(test)]
 mod tests {
@@ -17,7 +19,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            13005
         );
     }
 
@@ -48,6 +50,15 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) -> u32 {}
+fn part_1(lines: impl Iterator<Item = String>) -> u32 {
+    let rounds = parse_lines::<types::Round>(lines);
+    rounds
+        .map(|round| {
+            let score = round.score();
+            println!("{score}");
+            round.score() as u32
+        })
+        .sum()
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}
