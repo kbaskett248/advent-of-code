@@ -1,4 +1,5 @@
 use mylib::read_lines;
+use std::collections::HashSet;
 use std::time::Instant;
 
 #[cfg(test)]
@@ -9,7 +10,7 @@ mod tests {
     fn test_part_1_example() {
         assert_eq!(
             part_1(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            157
         );
     }
 
@@ -17,7 +18,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            7845
         );
     }
 
@@ -48,6 +49,21 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(lines: impl Iterator<Item = String>) -> u32 {
+    lines
+        .map(|line| {
+            let l = line.len() / 2;
+            let comp_1: HashSet<char> = line[0..l].chars().collect();
+            let comp_2: HashSet<char> = line[l..].chars().collect();
+            let common: char = *comp_1.intersection(&comp_2).next().unwrap();
+            let value = common as u32;
+            if 97 <= value && value <= 123 {
+                value - 96
+            } else {
+                value - 38
+            }
+        })
+        .sum()
+}
 
 fn part_2(lines: impl Iterator<Item = String>) {}
