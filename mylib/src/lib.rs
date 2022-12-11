@@ -36,7 +36,27 @@ pub fn chunk_lines(lines: impl Iterator<Item = String>) -> impl Iterator<Item = 
         .filter_map(identity)
 }
 
-pub fn parse_lines<T>(lines: impl Iterator<Item = String>) -> impl Iterator<Item = T> 
-where T: FromStr {
+pub fn chunk_lines_n(
+    lines: impl Iterator<Item = String>,
+    count: usize,
+) -> impl Iterator<Item = Vec<String>> {
+    lines
+        .scan(vec![], move |container, line| {
+            container.push(line);
+            if container.len() >= count {
+                let chunk = Some(Some(container.clone()));
+                container.clear();
+                chunk
+            } else {
+                Some(None)
+            }
+        })
+        .filter_map(identity)
+}
+
+pub fn parse_lines<T>(lines: impl Iterator<Item = String>) -> impl Iterator<Item = T>
+where
+    T: FromStr,
+{
     lines.filter_map(|line| line.parse::<T>().ok())
 }
