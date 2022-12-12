@@ -1,6 +1,8 @@
 use mylib::read_lines;
 use std::time::Instant;
 
+mod types;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -17,7 +19,7 @@ mod tests {
     fn test_part_1() {
         assert_eq!(
             part_1(read_lines("input.txt").expect("read_lines failed")),
-            0
+            571
         );
     }
 
@@ -25,7 +27,7 @@ mod tests {
     fn test_part_2_example() {
         assert_eq!(
             part_2(read_lines("example.txt").expect("read_lines failed")),
-            ()
+            4
         );
     }
 
@@ -33,7 +35,7 @@ mod tests {
     fn test_part_2() {
         assert_eq!(
             part_2(read_lines("input.txt").expect("read_lines failed")),
-            ()
+            917
         );
     }
 }
@@ -48,6 +50,20 @@ fn main() {
     println!("PART 2: {:?} ({:?})", p2, start.elapsed());
 }
 
-fn part_1(lines: impl Iterator<Item = String>) {}
+fn part_1(lines: impl Iterator<Item = String>) -> usize {
+    lines
+        .filter_map(|line| {
+            let pair = line.parse::<types::Pair>().ok()?;
+            pair.fully_overlapping()
+        })
+        .count()
+}
 
-fn part_2(lines: impl Iterator<Item = String>) {}
+fn part_2(lines: impl Iterator<Item = String>) -> usize {
+    lines
+        .filter_map(|line| {
+            let pair = line.parse::<types::Pair>().ok()?;
+            pair.partial_overlapping()
+        })
+        .count()
+}
