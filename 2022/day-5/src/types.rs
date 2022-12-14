@@ -47,10 +47,24 @@ impl Stacks {
         }
     }
 
+    pub fn move_crates_2(&mut self, m: &Move) {
+        let mut temp_stack = Vec::with_capacity(m.quantity);
+        if let Some(stack_start) = self.stacks.get_mut(m.source - 1) {
+            for _ in 0..m.quantity {
+                if let Some(c) = stack_start.pop() {
+                    temp_stack.insert(0, c);
+                }
+            }
+        }
+        if let Some(stack_end) = self.stacks.get_mut(m.destination - 1) {
+            stack_end.append(&mut temp_stack);
+        }
+    }
+
     pub fn top_crates(&self) -> Vec<char> {
         self.stacks
             .iter()
-            .filter_map(|stack| stack.get(stack.len() - 1))
+            .filter_map(|stack| stack.last())
             .cloned()
             .collect()
     }
